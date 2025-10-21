@@ -1,0 +1,35 @@
+@startuml Package Diagram - Simulador de Turnos
+
+package "Simulador de Turnos" as main {
+    package "main" as main_package {
+        [Main]
+    }
+
+    package "modelo" as modelo {
+        [Cliente]
+        [Turno]
+        [RegistroAtencion]
+        [Estadistica]
+        [Historial]
+        [GestorTurnos]
+    }
+
+    package "controlador" as controlador {
+        [ControladorAtencion]
+    }
+
+    package "vista" as vista {
+        [VentanaPrincipal]
+        [DialogoCaptura]
+    }
+}
+
+main_package --> vista : inicia
+vista --> controlador : controla
+controlador --> modelo : gestiona
+
+note right of modelo : Capa de datos y lógica de negocio
+note right of vista : Capa de presentación (GUI)
+note right of controlador : Capa de control (MVC)
+
+@enduml

@@ -1,0 +1,165 @@
+@startuml Class Diagram - Simulador de Turnos
+
+package modelo {
+    class Cliente {
+        - int id
+        - String nombre
+        - String email
+        - String telefono
+        + Cliente(String, String, String)
+        + int getId()
+        + String getNombre()
+        + String getEmail()
+        + String getTelefono()
+    }
+
+    class Turno {
+        - int numeroTurno
+        - Cliente cliente
+        - LocalDateTime horaLlegada
+        - LocalDateTime horaAtencion
+        - String tipo
+        + Turno(Cliente, String)
+        + int getNumeroTurno()
+        + Cliente getCliente()
+        + LocalDateTime getHoraLlegada()
+        + LocalDateTime getHoraAtencion()
+        + void setHoraAtencion(LocalDateTime)
+        + String getTipo()
+    }
+
+    class RegistroAtencion {
+        - Cliente cliente
+        - LocalDateTime horaInicio
+        - LocalDateTime horaFin
+        - String tipoAtencion
+        + RegistroAtencion(Cliente, String)
+        + void finalizarAtencion()
+        + long calcularDuracion()
+        + Cliente getCliente()
+        + LocalDateTime getHoraInicio()
+        + LocalDateTime getHoraFin()
+        + String getTipoAtencion()
+    }
+
+    class Estadistica {
+        - int atendidosNormales
+        - int atendidosUrgentes
+        - int maxCola
+        - int maxPila
+        - Turno clienteActual
+        + void actualizar(GestorTurnos)
+        + String resumen()
+    }
+
+    class Historial {
+        - List<RegistroAtencion> registros
+        - int totalAtenciones
+        - LocalDateTime ultimaActualizacion
+        + Historial()
+        + void agregarRegistro(RegistroAtencion)
+        + List<RegistroAtencion> buscarPorCliente(String)
+        + void limpiar()
+        + void mostrarHistorial()
+        + List<RegistroAtencion> getRegistros()
+        + int getTotalAtenciones()
+        + LocalDateTime getUltimaActualizacion()
+    }
+
+    class GestorTurnos {
+        - LinkedList<Turno> colaTurnos
+        - LinkedList<Turno> pilaUrgentes
+        - int atendidosNormales
+        - int atendidosUrgentes
+        - int maxCola
+        - int maxPila
+        - Turno clienteActual
+        + GestorTurnos()
+        + void agregarClienteNormal(Turno)
+        + void agregarClienteUrgente(Turno)
+        + Turno atenderSiguiente()
+        + void moverUltimoAFrente()
+        + void limpiar()
+        + LinkedList<Turno> getColaTurnos()
+        + LinkedList<Turno> getPilaUrgentes()
+        + Turno getClienteActual()
+        + int getAtendidosNormales()
+        + int getAtendidosUrgentes()
+        + int getMaxCola()
+        + int getMaxPila()
+    }
+}
+
+package controlador {
+    class ControladorAtencion {
+        - GestorTurnos gestor
+        - VentanaPrincipal vista
+        - Estadistica estadistica
+        - Historial historial
+        + ControladorAtencion(VentanaPrincipal)
+        + void agregarCliente(String, String, String, boolean)
+        + void atender()
+        + void moverUltimoAFrente()
+        + void limpiar()
+        + void actualizarVista()
+        + Historial getHistorial()
+    }
+}
+
+package vista {
+    class VentanaPrincipal {
+        - ControladorAtencion controlador
+        - JLabel lblEstado
+        - JTextArea txtCola
+        - JTextArea txtPila
+        - JTable tblHistorial
+        - DefaultTableModel modeloHistorial
+        - JLabel lblUrgentes
+        - JLabel lblCola
+        - JLabel lblMaxCola
+        - JLabel lblMaxPila
+        - DialogoCaptura dialogoCaptura
+        + VentanaPrincipal()
+        + void mostrarEstado(List<Turno>, List<Turno>, Turno)
+        + void actualizarMetricas(int, int, int, int)
+        + void agregarRegistroHistorial(RegistroAtencion)
+        + void mostrarError(String)
+    }
+
+    class DialogoCaptura {
+        - JTextField txtNombre
+        - JTextField txtEmail
+        - JTextField txtTelefono
+        - JCheckBox chkUrgente
+        - JButton btnAceptar
+        - JButton btnCancelar
+        + DialogoCaptura(JFrame)
+        + String getNombre()
+        + String getEmail()
+        + String getTelefono()
+        + boolean isUrgente()
+        + void limpiarCampos()
+    }
+}
+
+package main {
+    class Main {
+        + static void main(String[])
+    }
+}
+
+Cliente ||-- Turno : tiene
+Cliente ||-- RegistroAtencion : atendido
+Turno ||-- RegistroAtencion : genera
+GestorTurnos ||-- Turno : gestiona
+Estadistica ..> GestorTurnos : actualiza
+Historial ||-- RegistroAtencion : contiene
+ControladorAtencion --> GestorTurnos : usa
+ControladorAtencion --> Estadistica : usa
+ControladorAtencion --> Historial : usa
+ControladorAtencion --> VentanaPrincipal : actualiza
+VentanaPrincipal --> ControladorAtencion : controla
+VentanaPrincipal --> DialogoCaptura : contiene
+Main --> VentanaPrincipal : inicia
+
+@enduml

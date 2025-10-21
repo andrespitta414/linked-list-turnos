@@ -1,0 +1,89 @@
+@startuml Sequence Diagram - Agregar y Atender Cliente
+
+actor Usuario
+participant VentanaPrincipal
+participant ControladorAtencion
+participant GestorTurnos
+participant Cliente
+participant Turno
+participant Estadistica
+participant Historial
+participant RegistroAtencion
+
+== Agregar Cliente Normal ==
+Usuario -> VentanaPrincipal: Clic "Capturar datos..."
+VentanaPrincipal -> VentanaPrincipal: Mostrar DialogoCaptura
+Usuario -> VentanaPrincipal: Ingresar datos (nombre, email, telefono, false)
+Usuario -> VentanaPrincipal: Clic "Registrar"
+VentanaPrincipal -> ControladorAtencion: agregarCliente(nombre, email, telefono, false)
+ControladorAtencion -> Cliente: new Cliente(nombre, email, telefono)
+Cliente --> ControladorAtencion: cliente
+ControladorAtencion -> Turno: new Turno(cliente, "NORMAL")
+Turno --> ControladorAtencion: turno
+ControladorAtencion -> GestorTurnos: agregarClienteNormal(turno)
+GestorTurnos -> GestorTurnos: colaTurnos.offer(turno)
+GestorTurnos -> GestorTurnos: actualizar maxCola si necesario
+ControladorAtencion -> ControladorAtencion: actualizarVista()
+ControladorAtencion -> Estadistica: actualizar(gestor)
+Estadistica --> ControladorAtencion: estadisticas
+ControladorAtencion -> VentanaPrincipal: mostrarEstado(cola, pila, actual)
+ControladorAtencion -> VentanaPrincipal: actualizarMetricas(urgentes, cola, maxCola, maxPila)
+
+== Agregar Cliente Urgente ==
+Usuario -> VentanaPrincipal: Clic "Capturar datos..."
+VentanaPrincipal -> VentanaPrincipal: Mostrar DialogoCaptura
+Usuario -> VentanaPrincipal: Ingresar datos (nombre, email, telefono, true)
+Usuario -> VentanaPrincipal: Clic "Registrar"
+VentanaPrincipal -> ControladorAtencion: agregarCliente(nombre, email, telefono, true)
+ControladorAtencion -> Cliente: new Cliente(nombre, email, telefono)
+Cliente --> ControladorAtencion: cliente
+ControladorAtencion -> Turno: new Turno(cliente, "URGENTE")
+Turno --> ControladorAtencion: turno
+ControladorAtencion -> GestorTurnos: agregarClienteUrgente(turno)
+GestorTurnos -> GestorTurnos: pilaUrgentes.push(turno)
+GestorTurnos -> GestorTurnos: actualizar maxPila si necesario
+ControladorAtencion -> ControladorAtencion: actualizarVista()
+ControladorAtencion -> Estadistica: actualizar(gestor)
+Estadistica --> ControladorAtencion: estadisticas
+ControladorAtencion -> VentanaPrincipal: mostrarEstado(cola, pila, actual)
+ControladorAtencion -> VentanaPrincipal: actualizarMetricas(urgentes, cola, maxCola, maxPila)
+
+== Atender Cliente Urgente ==
+Usuario -> VentanaPrincipal: Clic "Atender"
+VentanaPrincipal -> ControladorAtencion: atender()
+ControladorAtencion -> GestorTurnos: atenderSiguiente()
+GestorTurnos -> GestorTurnos: pilaUrgentes.pop() (clienteActual)
+GestorTurnos -> GestorTurnos: atendidosUrgentes++
+GestorTurnos -> Turno: setHoraAtencion(now)
+GestorTurnos --> ControladorAtencion: turno atendido
+ControladorAtencion -> RegistroAtencion: new RegistroAtencion(cliente, "URGENTE")
+RegistroAtencion --> ControladorAtencion: registro
+ControladorAtencion -> RegistroAtencion: finalizarAtencion()
+ControladorAtencion -> Historial: agregarRegistro(registro)
+ControladorAtencion -> VentanaPrincipal: agregarRegistroHistorial(registro)
+ControladorAtencion -> ControladorAtencion: actualizarVista()
+ControladorAtencion -> Estadistica: actualizar(gestor)
+Estadistica --> ControladorAtencion: estadisticas
+ControladorAtencion -> VentanaPrincipal: mostrarEstado(cola, pila, actual)
+ControladorAtencion -> VentanaPrincipal: actualizarMetricas(urgentes, cola, maxCola, maxPila)
+
+== Atender Cliente Normal ==
+Usuario -> VentanaPrincipal: Clic "Atender"
+VentanaPrincipal -> ControladorAtencion: atender()
+ControladorAtencion -> GestorTurnos: atenderSiguiente()
+GestorTurnos -> GestorTurnos: colaTurnos.poll() (clienteActual)
+GestorTurnos -> GestorTurnos: atendidosNormales++
+GestorTurnos -> Turno: setHoraAtencion(now)
+GestorTurnos --> ControladorAtencion: turno atendido
+ControladorAtencion -> RegistroAtencion: new RegistroAtencion(cliente, "NORMAL")
+RegistroAtencion --> ControladorAtencion: registro
+ControladorAtencion -> RegistroAtencion: finalizarAtencion()
+ControladorAtencion -> Historial: agregarRegistro(registro)
+ControladorAtencion -> VentanaPrincipal: agregarRegistroHistorial(registro)
+ControladorAtencion -> ControladorAtencion: actualizarVista()
+ControladorAtencion -> Estadistica: actualizar(gestor)
+Estadistica --> ControladorAtencion: estadisticas
+ControladorAtencion -> VentanaPrincipal: mostrarEstado(cola, pila, actual)
+ControladorAtencion -> VentanaPrincipal: actualizarMetricas(urgentes, cola, maxCola, maxPila)
+
+@enduml
