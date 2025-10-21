@@ -142,7 +142,7 @@ package vista {
     }
 }
 
-package main {
+package vista {
     class Main {
         + static void main(String[])
     }

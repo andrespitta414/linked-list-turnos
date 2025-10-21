@@ -1,4 +1,5 @@
-import vista.VentanaPrincipal;
+package vista;
+
 import javax.swing.SwingUtilities;
 
 public class Main {

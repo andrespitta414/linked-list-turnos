@@ -1,10 +1,6 @@
 @startuml Package Diagram - Simulador de Turnos
 
 package "Simulador de Turnos" as main {
-    package "main" as main_package {
-        [Main]
-    }
-
     package "modelo" as modelo {
         [Cliente]
         [Turno]
@@ -19,12 +15,12 @@ package "Simulador de Turnos" as main {
     }
 
     package "vista" as vista {
+        [Main]
         [VentanaPrincipal]
         [DialogoCaptura]
     }
 }
 
-main_package --> vista : inicia
 vista --> controlador : controla
 controlador --> modelo : gestiona
 
